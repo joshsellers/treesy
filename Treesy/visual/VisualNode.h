@@ -26,6 +26,7 @@ public:
     bool hasParent() const;
 
     bool isHovered() const;
+    bool isArmed() const;
 
     virtual void mouseButtonPressed(const int mx, const int my, const int button);
     virtual void mouseButtonReleased(const int mx, const int my, const int button);
@@ -33,10 +34,13 @@ public:
     virtual void textEntered(const sf::Uint32 character); 
     
     virtual bool hasMousePriority() const;
+    void releasePriority();
 protected:
     virtual void update();
     virtual void draw(sf::RenderTexture& surface); 
 private:
+    bool anotherNodeIsBlocking() const;
+
     std::vector<s_p<VisualNode>> _children;
 
     void addChild();
@@ -50,6 +54,8 @@ private:
     sf::RectangleShape _plusButton;
     sf::RectangleShape _minusButton;
     bool _clickingButtons = false;
+
+    sf::Text _subscript;
 };
 
 #endif

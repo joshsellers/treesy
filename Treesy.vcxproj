@@ -215,6 +215,7 @@
     <ClCompile Include="soloud\filter\soloud_waveshaperfilter.cpp" />
     <ClCompile Include="Treesy\core\main.cpp" />
     <ClCompile Include="Treesy\core\ProgramManager.cpp" />
+    <ClCompile Include="Treesy\core\UIHandler.cpp" />
     <ClCompile Include="Treesy\tree\Node.cpp" />
     <ClCompile Include="Treesy\tree\Tree.cpp" />
     <ClCompile Include="Treesy\visual\VisualNode.cpp" />
@@ -265,6 +266,7 @@
     <ClInclude Include="soloud\backend\miniaudio\miniaudio.h" />
     <ClInclude Include="Treesy\core\ProgramManager.h" />
     <ClInclude Include="Treesy\core\Settings.h" />
+    <ClInclude Include="Treesy\core\UIHandler.h" />
     <ClInclude Include="Treesy\tree\Node.h" />
     <ClInclude Include="Treesy\tree\Tree.h" />
     <ClInclude Include="Treesy\visual\Line.h" />

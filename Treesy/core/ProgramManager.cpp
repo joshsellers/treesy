@@ -6,6 +6,7 @@
 #include "../visual/VisualTree.h"
 #include "../../PennyEngine/PennyEngine.h"
 #include "../../PennyEngine/core/Logger.h"
+#include "UIHandler.h"
 
 ProgramManager::ProgramManager() {
     PennyEngine::addInputListener(this);
@@ -13,6 +14,8 @@ ProgramManager::ProgramManager() {
 
 void ProgramManager::init() {
     VisualTree::addChild(nullptr);
+
+    UIHandler::init();
 }
 
 void ProgramManager::update() {

@@ -4,6 +4,7 @@
 #include "VisualTree.h"
 #include "../../PennyEngine/PennyEngine.h"
 #include "../../PennyEngine/core/Logger.h"
+#include "../core/Settings.h"
 
 VisualTreeImpl::VisualTreeImpl() {
     PennyEngine::addInputListener(this);
@@ -18,9 +19,14 @@ void VisualTreeImpl::update() {
     }
     _nodeBuffer.clear();
 
+    int numNodesWithPriority = 0;
     for (const auto& node : _nodes) {
         if (node->isActive()) {
             node->tick();
+            if (node->hasMousePriority()) {
+                if (numNodesWithPriority == 1) node->releasePriority();
+                else numNodesWithPriority++;
+            }
         }
     }
 
@@ -104,7 +110,7 @@ s_p<VisualNode> VisualTreeImpl::addChild(VisualNode* parent) {
     const auto& res = PennyEngine::getRenderResolution();
     const sf::Vector2f pos = parent == nullptr ? sf::Vector2f(50, 50) : sf::Vector2f(
         parent->getPosition().x / res.width * 100.f + (parent->getBounds().width / 2.f / res.width * 100.f), 
-        parent->getPosition().y / res.height * 100.f + 6.f
+        parent->getPosition().y / res.height * 100.f + Settings::nontermVerticalDistance
     );
 
     const auto& newNode = new_s_p(VisualNode, (parent, pos.x, pos.y));

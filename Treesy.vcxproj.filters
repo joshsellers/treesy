@@ -279,6 +279,9 @@
     <ClCompile Include="Treesy\visual\VisualTree.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Treesy\core\UIHandler.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="Treesy.licenseheader" />
@@ -418,6 +421,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Treesy\core\Settings.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Treesy\core\UIHandler.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

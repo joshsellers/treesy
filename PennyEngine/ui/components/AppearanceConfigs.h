@@ -45,6 +45,10 @@ namespace pe {
     inline ComponentAppearanceConfig TEXTFIELD_CONFIG = BUTTON_CONFIG.offsetBy(0, 32);
     inline ComponentAppearanceConfig TEXTFIELD_HOVER_CONFIG = TEXTFIELD_CONFIG.offsetBy(16, 0);
     inline ComponentAppearanceConfig TEXTFIELD_ARMED_CONFIG = TEXTFIELD_CONFIG.offsetBy(32, 0);
+
+    inline ComponentAppearanceConfig NODE_CONFIG = TEXTFIELD_CONFIG.offsetBy(0, 16);
+    inline ComponentAppearanceConfig NODE_HOVER_CONFIG = TEXTFIELD_HOVER_CONFIG.offsetBy(0, 16);
+    inline ComponentAppearanceConfig NODE_ARMED_CONFIG = TEXTFIELD_ARMED_CONFIG.offsetBy(0, 16);
 }
 
 #endif

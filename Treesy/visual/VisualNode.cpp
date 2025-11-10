@@ -16,6 +16,12 @@ VisualNode::VisualNode(VisualNode* parent, float x, float y) : TextField(pe::gen
     _parent = parent;
     show();
     _fieldText.setFillColor(Settings::nonTermColor);
+    _fieldText.setCharacterSize(pe::UI::percentToScreenWidth(2.5f));
+
+    _subscript.setFont(PennyEngine::getFont());
+    _subscript.setFillColor(Settings::nonTermColor);
+    _subscript.setCharacterSize(pe::UI::percentToScreenWidth(1.25f));
+    _subscript.setString("");
 
     constructShapes();
 
@@ -58,7 +64,7 @@ sf::Vector2f VisualNode::getPosition() const {
 
 
 void VisualNode::addChild() {
-    if (!hasChildren() && hasParent() && getParent()->getChildren().size() == 1) move({ 0, pe::UI::percentToScreenHeight(4.f) });
+    if (!hasChildren() && hasParent() && getParent()->getChildren().size() == 1) move({ 0, pe::UI::percentToScreenHeight(Settings::termVerticalDistance) });
     const auto& child = VisualTree::addChild(this);
     _children.push_back(child);
 }
@@ -74,19 +80,21 @@ void VisualNode::connectToParent(sf::RenderTexture& surface) {
 }
 
 void VisualNode::update() {
+    bool preferParent = false;
     if (hasParent() && !_parent->isActive()) hide();
+    else if (hasParent() && _parent->isArmed()) preferParent = true;
 
     if (!_isSelected && _lastSelected) _isArmed = false;
     _lastSelected = _isSelected;
 
-    if (((getBounds().contains(_mPos.x, _mPos.y) && !_mouseDown) || _isSelected) && !_isArmed) {
-        setAppearance(pe::TEXTFIELD_HOVER_CONFIG);
+    if (((getBounds().contains(_mPos.x, _mPos.y) && !_mouseDown) || _isSelected) && !_isArmed && !preferParent) {
+        setAppearance(pe::NODE_HOVER_CONFIG);
         _hideInterface = false;
     } else if ((!_mouseDown || !getBounds().contains(_mPos.x, _mPos.y)) && !_isArmed) {
-        setAppearance(pe::TEXTFIELD_CONFIG);
+        setAppearance(pe::NODE_CONFIG);
         _hideInterface = true;
     } else if (_isArmed) {
-        setAppearance(pe::TEXTFIELD_ARMED_CONFIG);
+        setAppearance(pe::NODE_ARMED_CONFIG);
         _hideInterface = false;
     }
 
@@ -102,13 +110,13 @@ void VisualNode::update() {
 
     if (hasParent()) {
         const float dist = getPosition().y - _parent->getPosition().y;
-        if (dist <= pe::UI::percentToScreenHeight(6.f)) {
+        if (dist <= pe::UI::percentToScreenHeight(Settings::nontermVerticalDistance)) {
             if (hasChildren() || getParent()->getChildren().size() > 1) {
-                move({ 0, pe::UI::percentToScreenHeight(4.f) });
+                move({ 0, pe::UI::percentToScreenHeight(Settings::termVerticalDistance) });
             }
-        } else if (dist >= pe::UI::percentToScreenHeight(6.f)) {
+        } else if (dist >= pe::UI::percentToScreenHeight(Settings::nontermVerticalDistance)) {
             if (!hasChildren() && getParent()->getChildren().size() == 1) {
-                move({ 0, -pe::UI::percentToScreenHeight(4.f) });
+                move({ 0, -pe::UI::percentToScreenHeight(Settings::termVerticalDistance) });
             }
         }
     }
@@ -155,10 +163,16 @@ void VisualNode::draw(sf::RenderTexture& surface) {
     }
 }
 
-void VisualNode::mouseButtonPressed(const int mx, const int my, const int button) {
+bool VisualNode::anotherNodeIsBlocking() const {
     for (const auto& node : VisualTree::getNodes()) {
-        if (node->isActive() && node->getIdentifier() != getIdentifier() && node->hasMousePriority()) return;
+        if (node->isActive() && node->getIdentifier() != getIdentifier() && node->hasMousePriority()) return true;
     }
+
+    return false;
+}
+
+void VisualNode::mouseButtonPressed(const int mx, const int my, const int button) {
+    if (anotherNodeIsBlocking()) return;
 
     _mouseDown = true;
 
@@ -170,26 +184,24 @@ void VisualNode::mouseButtonPressed(const int mx, const int my, const int button
 void VisualNode::mouseButtonReleased(const int mx, const int my, const int button) {
     if (_isArmed && !getBounds().contains(mx, my)) _isArmed = false;
 
-    for (const auto& node : VisualTree::getNodes()) {
-        if (node->isActive() && node->getIdentifier() != getIdentifier() && node->hasMousePriority()) return;
-    }
+    if (anotherNodeIsBlocking()) return;
 
-    _isArmed = !_clickingButtons && getBounds().contains(mx, my);
+    _isArmed = !_clickingButtons && getBounds().contains(mx, my) && button == sf::Mouse::Left;
     _mouseDown = false;
 
-    if (_plusButton.getGlobalBounds().contains(mx, my) && getBounds().contains(_mPos.x, _mPos.y)) {
+    if (_plusButton.getGlobalBounds().contains(mx, my) && getBounds().contains(_mPos.x, _mPos.y) && button == sf::Mouse::Left) {
         addChild();
-    } else if (hasParent() && _minusButton.getGlobalBounds().contains(mx, my) && getBounds().contains(_mPos.x, _mPos.y)) {
+    } else if (hasParent() && _minusButton.getGlobalBounds().contains(mx, my) && getBounds().contains(_mPos.x, _mPos.y) && button == sf::Mouse::Left) {
         hide();
+    } else if (getBounds().contains(_mPos.x, _mPos.y) && button == sf::Mouse::Right) {
+        pe::UI::getMenu("subscriptMenu")->open();
     }
 
     _clickingButtons = false;
 }
 
 void VisualNode::mouseMoved(const int mx, const int my) {
-    for (const auto& node : VisualTree::getNodes()) {
-        if (node->isActive() && node->getIdentifier() != getIdentifier() && node->hasMousePriority()) return;
-    }
+    if (anotherNodeIsBlocking()) return;
 
     _mPos.x = mx;
     _mPos.y = my;
@@ -197,6 +209,10 @@ void VisualNode::mouseMoved(const int mx, const int my) {
 
 bool VisualNode::hasMousePriority() const {
     return getBounds().contains(_mPos.x, _mPos.y);
+}
+
+void VisualNode::releasePriority() {
+    _mPos = { 0, 0 };
 }
 
 void VisualNode::textEntered(const sf::Uint32 character) {
@@ -229,4 +245,8 @@ bool VisualNode::hasParent() const {
 
 bool VisualNode::isHovered() const {
     return !_hideInterface;
+}
+
+bool VisualNode::isArmed() const {
+    return _isArmed;
 }

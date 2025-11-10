@@ -20,7 +20,7 @@ VisualNode::VisualNode(VisualNode* parent, float x, float y) : TextField(pe::gen
 
     _subscript.setFont(PennyEngine::getFont());
     _subscript.setFillColor(Settings::nonTermColor);
-    _subscript.setCharacterSize(pe::UI::percentToScreenWidth(1.25f));
+    _subscript.setCharacterSize(pe::UI::percentToScreenWidth(1.75f));
     _subscript.setString("");
 
     constructShapes();
@@ -98,12 +98,14 @@ void VisualNode::update() {
         _hideInterface = false;
     }
 
-    _size.x = std::max(_minWidth, _fieldText.getGlobalBounds().width + _padding * 2);
+    _size.x = std::max(_minWidth, _fieldText.getGlobalBounds().width + _padding * 2 + _subscript.getGlobalBounds().width);
     _size.y = std::max(_minHeight, _fieldText.getGlobalBounds().height);
 
     if (_autoCenter) {
         _pos.x = _origin.x - _size.x / 2.f - _padding;
         _pos.y = _origin.y - _size.y / 2.f;
+
+        if (hasSubscript()) _pos.x += _subscript.getGlobalBounds().width / 2.f;
     }
 
     _children.erase(std::remove_if(_children.begin(), _children.end(), [](s_p<VisualNode> node) {return !node->isActive(); }), _children.end());
@@ -120,10 +122,16 @@ void VisualNode::update() {
             }
         }
     }
+
+    if (_enteringSubscript) {
+        const auto& menu = pe::UI::getMenu("subscriptMenu");
+        if (!menu->isActive()) _enteringSubscript = false;
+        else _subscript.setString(menu->getComponent("subscriptField")->getText().getString());
+    }
 }
 
 void VisualNode::draw(sf::RenderTexture& surface) {
-    if (!hasChildren()) _fieldText.setFillColor(Settings::termColor);
+    if (!hasChildren() && !hasSubscript()) _fieldText.setFillColor(Settings::termColor);
     else _fieldText.setFillColor(Settings::nonTermColor);
 
     _fieldText.setOrigin(_fieldText.getLocalBounds().width / 2.f + _fieldText.getLocalBounds().left, _fieldText.getLocalBounds().height / 2.f + _fieldText.getLocalBounds().top);
@@ -132,7 +140,7 @@ void VisualNode::draw(sf::RenderTexture& surface) {
     const float width = bounds.width;
     const float height = bounds.height;
     _fieldText.setPosition(
-        bounds.left + (width / 2.f),
+        bounds.left + (width / 2.f) - (hasSubscript() ? _subscript.getGlobalBounds().width / 2.f : 0),
         bounds.top + (height / 2.f)
     );
 
@@ -150,6 +158,17 @@ void VisualNode::draw(sf::RenderTexture& surface) {
         if ((_cursorBlinkTimer / blinkRate) % 2) surface.draw(cursor);
 
         _cursorBlinkTimer++;
+    }
+
+    if (hasSubscript()) {
+        const float subsVertSpacing = pe::UI::percentToScreenHeight(0.75f);
+        const float subsHoriSpacing = pe::UI::percentToScreenWidth(0.2f);
+
+        _subscript.setPosition(
+            _fieldText.getPosition().x + _fieldText.getGlobalBounds().width / 2.f + subsHoriSpacing, 
+            (_fieldText.getPosition().y - _fieldText.getGlobalBounds().height / 2.f) + subsVertSpacing
+        );
+        surface.draw(_subscript);
     }
 
     connectToParent(surface);
@@ -194,7 +213,10 @@ void VisualNode::mouseButtonReleased(const int mx, const int my, const int butto
     } else if (hasParent() && _minusButton.getGlobalBounds().contains(mx, my) && getBounds().contains(_mPos.x, _mPos.y) && button == sf::Mouse::Left) {
         hide();
     } else if (getBounds().contains(_mPos.x, _mPos.y) && button == sf::Mouse::Right) {
-        pe::UI::getMenu("subscriptMenu")->open();
+        const auto& menu = pe::UI::getMenu("subscriptMenu");
+        menu->open();
+        menu->getComponent("subscriptField")->getText().setString(_subscript.getString());
+        _enteringSubscript = true;
     }
 
     _clickingButtons = false;
@@ -249,4 +271,8 @@ bool VisualNode::isHovered() const {
 
 bool VisualNode::isArmed() const {
     return _isArmed;
+}
+
+bool VisualNode::hasSubscript() const {
+    return _subscript.getString() != "" && _subscript.getString() != " ";
 }

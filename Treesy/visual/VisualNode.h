@@ -28,6 +28,8 @@ public:
     bool isHovered() const;
     bool isArmed() const;
 
+    bool hasSubscript() const;
+
     virtual void mouseButtonPressed(const int mx, const int my, const int button);
     virtual void mouseButtonReleased(const int mx, const int my, const int button);
     virtual void mouseMoved(const int mx, const int my);
@@ -56,6 +58,7 @@ private:
     bool _clickingButtons = false;
 
     sf::Text _subscript;
+    bool _enteringSubscript = false;
 };
 
 #endif

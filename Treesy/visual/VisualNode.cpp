@@ -70,7 +70,7 @@ void VisualNode::addChild() {
 }
 
 void VisualNode::connectToParent(sf::RenderTexture& surface) {
-    if (_parent != nullptr && (Settings::showTermLines || hasChildren() || getParent()->getChildren().size() > 1)) {
+    if (_parent != nullptr && (Settings::showTermLines || hasChildren() || getParent()->getChildren().size() > 1 || hasSubscript())) {
         const Line line(
             {_parent->getPosition().x + _parent->getBounds().width / 2.f, _parent->getPosition().y + _parent->getBounds().height}, 
             {getPosition().x + getBounds().width / 2.f, getPosition().y }
@@ -113,11 +113,11 @@ void VisualNode::update() {
     if (hasParent()) {
         const float dist = getPosition().y - _parent->getPosition().y;
         if (dist <= pe::UI::percentToScreenHeight(Settings::nontermVerticalDistance)) {
-            if (hasChildren() || getParent()->getChildren().size() > 1) {
+            if (hasChildren() || getParent()->getChildren().size() > 1 || hasSubscript()) {
                 move({ 0, pe::UI::percentToScreenHeight(Settings::termVerticalDistance) });
             }
         } else if (dist >= pe::UI::percentToScreenHeight(Settings::nontermVerticalDistance)) {
-            if (!hasChildren() && getParent()->getChildren().size() == 1) {
+            if (!hasChildren() && getParent()->getChildren().size() == 1 && !hasSubscript()) {
                 move({ 0, -pe::UI::percentToScreenHeight(Settings::termVerticalDistance) });
             }
         }

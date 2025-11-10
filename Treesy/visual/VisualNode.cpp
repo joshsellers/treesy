@@ -73,7 +73,8 @@ void VisualNode::connectToParent(sf::RenderTexture& surface) {
     if (_parent != nullptr && (Settings::showTermLines || hasChildren() || getParent()->getChildren().size() > 1 || hasSubscript())) {
         const Line line(
             {_parent->getPosition().x + _parent->getBounds().width / 2.f, _parent->getPosition().y + _parent->getBounds().height}, 
-            {getPosition().x + getBounds().width / 2.f, getPosition().y }
+            {getPosition().x + getBounds().width / 2.f, getPosition().y },
+            4.f
         );
         surface.draw(line);
     }

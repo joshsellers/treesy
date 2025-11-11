@@ -7,6 +7,7 @@
 #include "../../PennyEngine/PennyEngine.h"
 #include "../../PennyEngine/core/Logger.h"
 #include "UIHandler.h"
+#include "../../PennyEngine/ui/UI.h"
 
 ProgramManager::ProgramManager() {
     PennyEngine::addInputListener(this);
@@ -51,10 +52,7 @@ void ProgramManager::keyPressed(sf::Keyboard::Key& key) {
 }
 
 void ProgramManager::keyReleased(sf::Keyboard::Key& key) {
-    if (key == sf::Keyboard::Key::Escape) PennyEngine::stop();
-    else if (key == sf::Keyboard::Key::F) {
-        pe::Logger::log(UIHandler::getExportPath());
-    }
+
 }
 
 static sf::Vector2f mapMouseCoordinates(const int mx, const int my) {
@@ -68,6 +66,17 @@ void ProgramManager::mouseButtonPressed(const int mx, const int my, const int bu
         if (node->isActive() && node->getBounds().contains(mapMouseCoordinates(mx, my))) {
             _clickedIntoNode = true;
             return;
+        }
+    }
+
+    for (const auto& menu : pe::UI::getMenus()) {
+        if (menu->isActive()) {
+            for (const auto& component : menu->getComponents()) {
+                if (component->isActive() && component->getBounds().contains(mx, my)) {
+                    _clickedIntoNode = true;
+                    return;
+                }
+            }
         }
     }
 }

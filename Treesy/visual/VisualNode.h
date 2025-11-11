@@ -32,6 +32,7 @@ public:
 
     virtual void mouseButtonPressed(const int mx, const int my, const int button);
     virtual void mouseButtonReleased(const int mx, const int my, const int button);
+    virtual void mouseWheelScrolled(sf::Event::MouseWheelScrollEvent mouseWheelScroll);
     virtual void mouseMoved(const int mx, const int my);
     virtual void textEntered(const sf::Uint32 character); 
     
@@ -39,6 +40,8 @@ public:
     void releasePriority();
 
     bool isSelectingMovement() const;
+    bool hasMovement() const;
+    float getMovementLineVertex() const;
 protected:
     virtual void update();
     virtual void draw(sf::RenderTexture& surface); 
@@ -67,6 +70,11 @@ private:
     bool _selectingMovement = false;
     bool _hasMovement = false;
     s_p<VisualNode> _endPointNode = nullptr;
+
+    float _curveAngle = 0.f;
+    float _curveHeight = 0.f;
+
+    float _movementLineVertex = 0;
 };
 
 #endif

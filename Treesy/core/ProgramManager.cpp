@@ -53,7 +53,14 @@ void ProgramManager::keyPressed(sf::Keyboard::Key& key) {
 }
 
 void ProgramManager::keyReleased(sf::Keyboard::Key& key) {
-
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::LControl) && key == sf::Keyboard::V) {
+        for (const auto& node : VisualTree::getNodes()) {
+            if (node->isActive() && node->isArmed()) {
+                node->getText().setString(node->getText().getString() + sf::Clipboard::getString());
+                break;
+            }
+        }
+    }
 }
 
 static sf::Vector2f mapMouseCoordinates(const int mx, const int my) {
@@ -102,6 +109,12 @@ void ProgramManager::mouseMoved(const int mx, const int my) {
 }
 
 void ProgramManager::mouseWheelScrolled(sf::Event::MouseWheelScrollEvent mouseWheelScroll) {
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::LControl) || sf::Keyboard::isKeyPressed(sf::Keyboard::LAlt)) {
+        for (const auto& node : VisualTree::getNodes()) {
+            if (node->isActive() && node->isSelectingMovement()) return;
+        }
+    }
+
     const float factor = (1.f / ((mouseWheelScroll.delta * 8.f + 100.f) / 100.f));
     PennyEngine::getCamera().zoom(factor);
 }

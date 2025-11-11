@@ -67,7 +67,7 @@ void UIHandlerImpl::saveImage(std::string path) {
         lowestX = std::min(pos.x, lowestX);
         lowestY = std::min(pos.y, lowestY);
         highestX = std::max(pos.x + size.x, highestX);
-        highestY = std::max(pos.y + size.y, highestY);
+        highestY = std::max(std::max(pos.y + size.y, node->getMovementLineVertex()), highestY);
     }
     const sf::Vector2f size = { highestX - lowestX, highestY - lowestY };
     const sf::View view({ lowestX + size.x / 2.f, lowestY + size.y / 2.f }, size);

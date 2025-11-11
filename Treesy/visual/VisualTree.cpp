@@ -155,6 +155,14 @@ void VisualTreeImpl::mouseMoved(const int mx, const int my) {
     }
 }
 
+void VisualTreeImpl::mouseWheelScrolled(sf::Event::MouseWheelScrollEvent mouseWheelScroll) {
+    for (const auto& node : _nodes) {
+        if (node->isActive()) {
+            node->mouseWheelScrolled(mouseWheelScroll);
+        }
+    }
+}
+
 void VisualTreeImpl::textEntered(sf::Uint32 character) {
     for (const auto& node : _nodes) {
         if (node->isActive()) {

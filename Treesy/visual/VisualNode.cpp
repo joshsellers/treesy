@@ -206,6 +206,10 @@ void VisualNode::draw(sf::RenderTexture& surface) {
     } else if (_hasMovement && (_endPointNode == nullptr || !_endPointNode->isActive())) {
         _hasMovement = false;
         _endPointNode = nullptr;
+    } else if (!_hasMovement && _selectingMovement) {
+        drawMovementLine(surface);
+    } else if (!_hasMovement) {
+        _movementLineVertex = getPosition().y + getBounds().height;
     }
 }
 
@@ -215,12 +219,17 @@ void VisualNode::drawMovementLine(sf::RenderTexture& surface) {
         getBounds().top + getBounds().height + pe::UI::percentToScreenHeight(0.5f)
     };
     const sf::Vector2f p1 = {
-        _endPointNode->getBounds().left + _endPointNode->getBounds().width / 2.f,
-        _endPointNode->getBounds().top + _endPointNode->getBounds().height + pe::UI::percentToScreenHeight(0.5f)
+        _hasMovement || _endPointNode != nullptr ? 
+        _endPointNode->getBounds().left + _endPointNode->getBounds().width / 2.f 
+        : _mPos.x,
+
+        _hasMovement || _endPointNode != nullptr ? 
+        _endPointNode->getBounds().top + _endPointNode->getBounds().height + pe::UI::percentToScreenHeight(0.5f) 
+        : _mPos.y + pe::UI::percentToScreenHeight(4.f)
     };
 
-    sf::Vector2f control = 0.5f * (p0 + p1);
-    control.y += -500.f + (p0.y + p1.y) / 2.f;
+    sf::Vector2f control = (0.5f + _curveAngle) * (p0 + p1);
+    control.y += (-500.f - _curveHeight) + (p0.y + p1.y) / 2.f;
 
     std::vector<Line> lines;
 
@@ -241,6 +250,7 @@ void VisualNode::drawMovementLine(sf::RenderTexture& surface) {
     }
 
     for (const auto& line : lines) {
+        _movementLineVertex = std::max(_movementLineVertex, std::max(line.point1.y, line.point2.y));
         surface.draw(line);
     }
 
@@ -320,6 +330,8 @@ void VisualNode::mouseButtonReleased(const int mx, const int my, const int butto
 
             if (!otherNode) {
                 _selectingMovement = true;
+                _curveHeight = 0.f;
+                _curveAngle = 0.f;
             }
         } else if (_hasMovement) {
             _hasMovement = false;
@@ -343,8 +355,31 @@ void VisualNode::mouseButtonReleased(const int mx, const int my, const int butto
 void VisualNode::mouseMoved(const int mx, const int my) {
     if (anotherNodeIsBlocking()) return;
 
+    if (isSelectingMovement()) {
+        bool foundNode = false;
+        for (const auto& node : VisualTree::getNodes()) {
+            if (node->getIdentifier() != getIdentifier() && node->getBounds().contains(mx, my)) {
+                _endPointNode = node;
+                foundNode = true;
+                break;
+            }
+        }
+
+        if (!foundNode) _endPointNode = nullptr;
+    }
+
     _mPos.x = mx;
     _mPos.y = my;
+}
+
+void VisualNode::mouseWheelScrolled(sf::Event::MouseWheelScrollEvent mouseWheelScroll) {
+    if (isSelectingMovement()) {
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::LControl)) {
+            _curveHeight += 50.f * mouseWheelScroll.delta;
+        } else if (sf::Keyboard::isKeyPressed(sf::Keyboard::LAlt)) {
+            _curveAngle += 0.05f * mouseWheelScroll.delta;
+        }
+    }
 }
 
 bool VisualNode::hasMousePriority() const {
@@ -359,12 +394,20 @@ bool VisualNode::isSelectingMovement() const {
     return _selectingMovement;
 }
 
+bool VisualNode::hasMovement() const {
+    return _hasMovement;
+}
+
+float VisualNode::getMovementLineVertex() const {
+    return _movementLineVertex;
+}
+
 void VisualNode::textEntered(const sf::Uint32 character) {
     if (_isArmed) {
         sf::String userInput = _fieldText.getString();
         if (character == '\b' && userInput.getSize()) {
             userInput.erase(userInput.getSize() - 1, 1);
-        } else if (character != '\b') {
+        } else if (character != '\b' && character != (char)22) {
             userInput += character;
         }
         _fieldText.setString(userInput);

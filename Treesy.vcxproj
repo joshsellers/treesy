@@ -257,6 +257,7 @@
     <ClInclude Include="PennyEngine\ui\Menu.h" />
     <ClInclude Include="PennyEngine\ui\UI.h" />
     <ClInclude Include="PennyEngine\ui\UIManager.h" />
+    <ClInclude Include="resource.h" />
     <ClInclude Include="soloud\audiosource\speech\darray.h" />
     <ClInclude Include="soloud\audiosource\speech\klatt.h" />
     <ClInclude Include="soloud\audiosource\speech\resonator.h" />
@@ -274,6 +275,9 @@
     <ClInclude Include="Treesy\visual\Line.h" />
     <ClInclude Include="Treesy\visual\VisualNode.h" />
     <ClInclude Include="Treesy\visual\VisualTree.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Treesy.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

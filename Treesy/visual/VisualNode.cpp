@@ -10,7 +10,7 @@
 #include "../core/Settings.h"
 
 
-VisualNode::VisualNode(VisualNode* parent, float x, float y) : TextField(pe::generateUID(), x, y, 3, 5, "", "XP") {
+VisualNode::VisualNode(VisualNode* parent, float x, float y, const std::string id) : TextField(id == "" ? pe::generateUID() : id, x, y, 3, 5, "", "XP") {
     _parent = parent;
     show();
     _fieldText.setFillColor(Settings::nonTermColor);
@@ -221,11 +221,11 @@ void VisualNode::drawMovementLine(sf::RenderTexture& surface) {
     const sf::Vector2f p1 = {
         _hasMovement || _endPointNode != nullptr ? 
         _endPointNode->getBounds().left + _endPointNode->getBounds().width / 2.f 
-        : _mPos.x,
+        : _mPos.x + pe::UI::percentToScreenWidth(0.5f),
 
         _hasMovement || _endPointNode != nullptr ? 
         _endPointNode->getBounds().top + _endPointNode->getBounds().height + pe::UI::percentToScreenHeight(0.5f) 
-        : _mPos.y + pe::UI::percentToScreenHeight(4.f)
+        : _mPos.y + pe::UI::percentToScreenHeight(2.f)
     };
 
     sf::Vector2f control = (0.5f + _curveAngle) * (p0 + p1);
@@ -440,4 +440,8 @@ bool VisualNode::isArmed() const {
 
 bool VisualNode::hasSubscript() const {
     return _subscript.getString() != "" && _subscript.getString() != " ";
+}
+
+std::string VisualNode::getSubscript() const {
+    return _subscript.getString();
 }

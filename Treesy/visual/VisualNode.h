@@ -12,7 +12,7 @@
 
 class VisualNode : public pe::TextField {
 public:
-    VisualNode(VisualNode* parent, float x, float y);
+    VisualNode(VisualNode* parent, float x, float y, const std::string id = "");
 
     void tick();
     void visualize(sf::RenderTexture& surface);
@@ -29,6 +29,7 @@ public:
     bool isArmed() const;
 
     bool hasSubscript() const;
+    std::string getSubscript() const;
 
     virtual void mouseButtonPressed(const int mx, const int my, const int button);
     virtual void mouseButtonReleased(const int mx, const int my, const int button);
@@ -42,6 +43,8 @@ public:
     bool isSelectingMovement() const;
     bool hasMovement() const;
     float getMovementLineVertex() const;
+
+    friend class PersistenceImpl;
 protected:
     virtual void update();
     virtual void draw(sf::RenderTexture& surface); 

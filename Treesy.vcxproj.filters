@@ -276,6 +276,9 @@
     <ClCompile Include="Treesy\core\UIHandler.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Treesy\core\Persistence.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="Treesy.licenseheader" />
@@ -415,6 +418,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="resource.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Treesy\core\Persistence.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

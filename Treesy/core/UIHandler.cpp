@@ -11,6 +11,7 @@
 #include "../../PennyEngine/core/Logger.h"
 #include "../visual/VisualTree.h"
 #include "Settings.h"
+#include "Persistence.h"
 
 void UIHandlerImpl::init() {
     auto subscriptMenu = pe::UI::addMenu("subscriptMenu");
@@ -23,15 +24,20 @@ void UIHandlerImpl::init() {
     subscriptPanel->attach(subscriptMenu->getComponent("close_subscriptMenu"));
 
     auto mainMenu = pe::UI::addMenu("main");
-    const sf::Vector2f posOffset = { -3, -3 };
-    mainMenu->addComponent(new_s_p(pe::Button, ("open_settings", 10 + posOffset.x, 13 + posOffset.y, 7, 3, "Settings", this)));
-    mainMenu->addComponent(new_s_p(pe::Button, ("export", 10 + posOffset.x, 18 + posOffset.y, 8, 3, "Export tree", this)));
-    mainMenu->addComponent(new_s_p(pe::Button, ("exit", 10 + posOffset.x, 23 + posOffset.y, 6, 3, "Quit", this)));
-    auto mainPanel = new_s_p(pe::Panel, ("mainPanel", 10 + posOffset.x, 17 + posOffset.y, 10, 21, "Treesy", true));
+    const sf::Vector2f posOffset = { -3, 0 };
+    mainMenu->addComponent(new_s_p(pe::Button, ("load", 10 + posOffset.x, 13 + posOffset.y, 8, 3, "Open tree", this)));
+    mainMenu->addComponent(new_s_p(pe::Button, ("save", 10 + posOffset.x, 18 + posOffset.y, 8, 3, "Save tree", this)));
+    mainMenu->addComponent(new_s_p(pe::Button, ("export", 10 + posOffset.x, 23 + posOffset.y, 8, 3, "Export tree", this)));
+    mainMenu->addComponent(new_s_p(pe::Button, ("open_settings", 10 + posOffset.x, 28 + posOffset.y, 7, 3, "Settings", this)));
+    mainMenu->addComponent(new_s_p(pe::Button, ("exit", 10 + posOffset.x, 33 + posOffset.y, 6, 3, "Quit", this)));
+
+    auto mainPanel = new_s_p(pe::Panel, ("mainPanel", 10 + posOffset.x, 20 + posOffset.y, 10, 32, "Treesy", true));
     mainPanel->setTextPosition({ 50.f, 14.f });
     mainMenu->addComponent(mainPanel);
-    mainPanel->attach(mainMenu->getComponent("open_settings"));
+    mainPanel->attach(mainMenu->getComponent("load"));
+    mainPanel->attach(mainMenu->getComponent("save"));
     mainPanel->attach(mainMenu->getComponent("export"));
+    mainPanel->attach(mainMenu->getComponent("open_settings"));
     mainPanel->attach(mainMenu->getComponent("exit"));
     mainMenu->open();
 }
@@ -52,6 +58,13 @@ void UIHandlerImpl::buttonPressed(std::string buttonId) {
         saveImage(path);
     } else if (buttonId == "exit") {
         PennyEngine::stop();
+    } else if (buttonId == "save") {
+        const std::string path = UIHandler::getSavePath();
+        Persistence::save(path);
+    } else if (buttonId == "load") {
+        const std::string path = UIHandler::getLoadPath();
+        VisualTree::reset();
+        Persistence::load(path);
     }
 }
 
@@ -124,5 +137,43 @@ std::string UIHandler::getExportPath() {
     ofn.lpstrDefExt = (LPCWSTR)L"png";
 
     GetSaveFileName(&ofn);
+    return WcharToUtf8(ofn.lpstrFile);
+}
+
+std::string UIHandler::getSavePath() {
+    OPENFILENAME ofn;
+
+    WCHAR szFileName[MAX_PATH] = L"";
+
+    ZeroMemory(&ofn, sizeof(ofn));
+
+    ofn.lStructSize = sizeof(ofn);
+    ofn.hwndOwner = NULL;
+    ofn.lpstrFilter = (LPCWSTR)L"Treesy Files (*.treesy)\0*.treesy\0";
+    ofn.lpstrFile = szFileName;
+    ofn.nMaxFile = MAX_PATH;
+    ofn.Flags = OFN_EXPLORER | OFN_FILEMUSTEXIST | OFN_HIDEREADONLY;
+    ofn.lpstrDefExt = (LPCWSTR)L"treesy";
+
+    GetSaveFileName(&ofn);
+    return WcharToUtf8(ofn.lpstrFile);
+}
+
+std::string UIHandler::getLoadPath() {
+    OPENFILENAME ofn;
+
+    WCHAR szFileName[MAX_PATH] = L"";
+
+    ZeroMemory(&ofn, sizeof(ofn));
+
+    ofn.lStructSize = sizeof(ofn);
+    ofn.hwndOwner = NULL;
+    ofn.lpstrFilter = (LPCWSTR)L"Treesy Files (*.treesy)\0*.treesy\0";
+    ofn.lpstrFile = szFileName;
+    ofn.nMaxFile = MAX_PATH;
+    ofn.Flags = OFN_EXPLORER | OFN_FILEMUSTEXIST | OFN_HIDEREADONLY;
+    ofn.lpstrDefExt = (LPCWSTR)L"treesy";
+
+    GetOpenFileName(&ofn);
     return WcharToUtf8(ofn.lpstrFile);
 }

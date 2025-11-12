@@ -20,6 +20,8 @@ public:
     static void init();
 
     static std::string getExportPath();
+    static std::string getSavePath();
+    static std::string getLoadPath();
 private:
     static inline UIHandlerImpl _instance;
 };

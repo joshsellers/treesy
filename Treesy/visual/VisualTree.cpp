@@ -33,8 +33,10 @@ void VisualTreeImpl::update() {
     _nodes.erase(std::remove_if(_nodes.begin(), _nodes.end(), [](s_p<VisualNode> node) { return !node->isActive(); }), _nodes.end());
     _renderNodes.erase(std::remove_if(_renderNodes.begin(), _renderNodes.end(), [](s_p<VisualNode> node) { return !node->isActive(); }), _renderNodes.end());
 
-    alignNode(_nodes.at(0));
-    centerNodes(_nodes.at(0));
+    if (_nodes.size() != 0) {
+        alignNode(_nodes.at(0));
+        centerNodes(_nodes.at(0));
+    }
 }
 
 void VisualTreeImpl::centerNodes(s_p<VisualNode> node) {
@@ -173,4 +175,9 @@ void VisualTreeImpl::textEntered(sf::Uint32 character) {
 
 std::vector<s_p<VisualNode>> VisualTreeImpl::getNodes() {
     return _nodes;
+}
+
+void VisualTreeImpl::reset() {
+    _nodes.clear();
+    _renderNodes.clear();
 }

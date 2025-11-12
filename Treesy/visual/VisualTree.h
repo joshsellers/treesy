@@ -20,6 +20,10 @@ public:
     s_p<VisualNode> addChild(VisualNode* parent);
 
     std::vector<s_p<VisualNode>> getNodes();
+
+    void reset();
+
+    friend class PersistenceImpl;
 protected:
     virtual void mouseButtonPressed(const int mx, const int my, const int button);
     virtual void mouseButtonReleased(const int mx, const int my, const int button);
@@ -55,6 +59,12 @@ public:
     static std::vector<s_p<VisualNode>> getNodes() {
         return _instance.getNodes();
     }
+
+    static void reset() {
+        _instance.reset();
+    }
+
+    friend class PersistenceImpl;
 private:
     static inline VisualTreeImpl _instance;
 };

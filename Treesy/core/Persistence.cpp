@@ -116,9 +116,14 @@ void PersistenceImpl::load(std::string path, bool convert) {
     _children.clear();
     _endPoints.clear();
 
-    if (VisualTree::getNodes().size() == 0) {
+    if (VisualTree::getNodes().size() == 0 && !convert) {
         pe::Logger::log("No nodes were created; attempting to convert file from older version.");
         load(path, true);
+    } else if (VisualTree::getNodes().size() == 0 && convert) {
+        // Would be better if we could save the previous state before doing
+        // this and then revert to that when opening fails
+        VisualTree::reset();
+        VisualTree::addChild(nullptr);
     }
 }
 

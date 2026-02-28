@@ -2,9 +2,7 @@
 
 A program for drawing syntax trees.  
   
-Check the [releases](https://github.com/joshsellers/treesy/releases) page for downloads (click Asssets, then the first .zip file).  
-  
-Instructions for building it yourself coming soon.
+Check the [releases](https://github.com/joshsellers/treesy/releases) page for downloads (click Assets, then the first .zip file).  
 
 ### Usage
 

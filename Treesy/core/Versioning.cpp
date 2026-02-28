@@ -3,7 +3,7 @@
 
 #include "Versioning.h"
 
-const std::string VERSION = "1.0";
+const std::string VERSION = "1.1";
 
 const std::string BUILD_NUMBER =
 std::to_string(BUILD_DATE_YEAR_INT - 2000)
